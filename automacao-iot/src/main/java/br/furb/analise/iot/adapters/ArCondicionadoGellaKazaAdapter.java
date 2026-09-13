@@ -36,6 +36,8 @@ public final class ArCondicionadoGellaKazaAdapter implements IArCondicionado {
 
     @Override
     public void definirTemperatura(int temperatura) {
+        if (!adaptee.estaLigado()) adaptee.ativar();
+
         if (temperatura < TEMPERATURA_MINIMA || temperatura > TEMPERATURA_MAXIMA) {
             throw new IllegalArgumentException(
                 "Temperatura " + temperatura + " fora da faixa suportada (" + TEMPERATURA_MINIMA + " a " + TEMPERATURA_MAXIMA + ")");
