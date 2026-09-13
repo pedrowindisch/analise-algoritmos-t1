@@ -7,7 +7,6 @@ import java.util.Objects;
 public final class ArCondicionadoGellaKazaAdapter implements IArCondicionado {
     public static final int TEMPERATURA_MINIMA = 15;
     public static final int TEMPERATURA_MAXIMA = 35;
-    private static final int GUARDA_ITERACOES_EXTRA = 5;
 
     private final ArCondicionadoGellaKaza adaptee;
 
@@ -38,29 +37,15 @@ public final class ArCondicionadoGellaKazaAdapter implements IArCondicionado {
     @Override
     public void definirTemperatura(int temperatura) {
         if (temperatura < TEMPERATURA_MINIMA || temperatura > TEMPERATURA_MAXIMA) {
-            throw new IllegalArgumentException("Temperatura deve ser entre 15 e 35");
+            throw new IllegalArgumentException(
+                "Temperatura " + temperatura + " fora da faixa suportada (" + TEMPERATURA_MINIMA + " a " + TEMPERATURA_MAXIMA + ")");
         }
-        if (!adaptee.estaLigado()) {
-            adaptee.ativar();
+
+        while (adaptee.getTemperatura() < temperatura) {
+            adaptee.aumentarTemperatura();
         }
-        int maxIteracoes = Math.abs(temperatura - adaptee.getTemperatura()) + GUARDA_ITERACOES_EXTRA;
-        int iteracoes = 0;
-        while (adaptee.getTemperatura() != temperatura) {
-            if (iteracoes >= maxIteracoes) {
-                throw new IllegalStateException(
-                        "Nao foi possivel atingir a temperatura alvo " + temperatura + ": limite do hardware alcancado");
-            }
-            try {
-                if (adaptee.getTemperatura() < temperatura) {
-                    adaptee.aumentarTemperatura();
-                } else {
-                    adaptee.diminuirTemperatura();
-                }
-            } catch (IllegalArgumentException e) {
-                throw new IllegalStateException(
-                        "Nao foi possivel atingir a temperatura alvo " + temperatura + ": limite do hardware alcancado", e);
-            }
-            iteracoes++;
+        while (adaptee.getTemperatura() > temperatura) {
+            adaptee.diminuirTemperatura();
         }
     }
 
